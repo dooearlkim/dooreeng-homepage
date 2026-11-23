@@ -305,9 +305,13 @@
     document.getElementById('q-answer').value = '';
     document.getElementById('q-answer').focus();
   }
-  adminToggle.addEventListener('click', async function () {
-    var st = await checkAdmin();
-    if (st === 'none') { adminLogin.hidden = false; openAdminDlg(); document.getElementById('a-email').focus(); }
+  // 아이콘을 누르면 바로 로그인 창을 띄우고, 이미 비밀번호 단계를 지났으면 질문으로 넘어감
+  adminToggle.addEventListener('click', function () {
+    adminLogin.hidden = false;
+    qForm.hidden = true;
+    openAdminDlg();
+    document.getElementById('a-email').focus();
+    checkAdmin().catch(function () {});
   });
   document.getElementById('admin-dlg-x').addEventListener('click', closeAdminDlg);
   // 1단계: 비밀번호

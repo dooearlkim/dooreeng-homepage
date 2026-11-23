@@ -15,10 +15,13 @@ GitHub Pages로 무료 운영하고, 고객지원 게시판은 Supabase(무료)�
 | `supabase/admin_login_id.sql` | 관리자 아이디 로그인 설정 (한 번만 실행) |
 | `supabase/admin_2step.sql` | 관리자 2단계 로그인 설정 (한 번만 실행) |
 | `supabase/projects.sql` | 시공실적 관리·사진 저장소 설정 (한 번만 실행) |
+| `supabase/projects_sample.sql` | (선택) 예전 실적 5건 예시 넣기 (한 번만) |
 | `supabase/admin_questions_template.sql` | 보안 질문 등록 양식 (**실제 답을 여기에 적어 올리지 말 것**) |
 | `assets/` | 로고, 사진 |
 
 ## 자주 하는 수정
+
+- 파일을 고친 뒤 화면이 안 바뀌면 `index.html` 안의 `?v=` 뒤 숫자를 바꾸면 됩니다 (브라우저 캐시 방지)
 
 - **전화번호 바꾸기**: `config.js` 의 `PHONE_DISPLAY`, `PHONE_TEL`
 - **가견적 단가 바꾸기**: `app.js` 의 `CAPS` 목록에 있는 `price` 숫자
@@ -55,7 +58,8 @@ GitHub 웹사이트에서 파일을 열고 연필(Edit) 버튼으로 고친 뒤 
 
 ## 시공실적 관리
 
-1. SQL Editor 에서 `supabase/projects.sql` 을 실행 (기존 실적 5건이 처음 내용으로 들어갑니다)
+1. SQL Editor 에서 `supabase/projects.sql` 을 실행 (테이블·사진 저장소 설정, 한 번만)
+   - 예전 실적 5건을 예시로 넣고 싶으면 `supabase/projects_sample.sql` 도 한 번 실행 (선택)
 2. 홈페이지에서 관리자 로그인(2단계)을 하면 시공실적 아래에 **+ 시공실적 추가** 버튼이 생깁니다
 3. 실적을 누르면 상세 팝업이 열리고, 관리자에게는 **수정·삭제** 버튼이 보입니다
    (사진은 최대 6장, 자동으로 줄여서 저장. 첫 번째 사진이 대표 사진)
