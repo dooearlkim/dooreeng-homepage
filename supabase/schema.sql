@@ -24,15 +24,18 @@ create table if not exists public.admins (
   user_id uuid primary key references auth.users (id) on delete cascade
 );
 
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (select 1 from public.admins where user_id = auth.uid());
-$$;
+-- (이미 2단계 로그인 버전이 있으면 덮어쓰지 않음: 이 파일을 다시 실행해도 안전)
+do $do$
+begin
+  if not exists (select 1 from pg_proc where proname = 'is_admin' and pronamespace = 'public'::regnamespace) then
+    execute $f$
+      create function public.is_admin()
+      returns boolean language sql stable security definer set search_path = public
+      as $$ select exists (select 1 from public.admins where user_id = auth.uid()); $$
+    $f$;
+  end if;
+end
+$do$;
 
 -- 3) 보안 규칙 (RLS)
 alter table public.posts  enable row level security;
@@ -78,5 +81,6 @@ grant select on public.public_posts to anon, authenticated;
 --   1. Authentication > Users > Add user 로 동생분 이메일/비밀번호 계정 생성
 --   2. 아래 줄의 이메일을 바꿔서 실행
 -- insert into public.admins (user_id)
---   select id from auth.users where email = '동생분이메일@example.com';
+--   select id from auth.users where email = '동생분이메일@example.com'
+--   on conflict do nothing;
 -- ============================================================
