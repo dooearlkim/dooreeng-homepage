@@ -128,8 +128,8 @@
 <section id="projects">
   <div class="wrap">
     <h2>시공실적</h2>
-    <p class="small-note">※ 2013~2014년 기록 기준 예시. 최신 실적과 실제 사진으로 교체 예정</p>
-    <div class="grid-auto projects-grid">
+    <p class="small-note" id="proj-note">※ 2013~2014년 기록 기준 예시. 최신 실적과 실제 사진으로 교체 예정</p>
+    <div class="grid-auto projects-grid" id="project-grid">
       <div class="tile big"><svg viewBox="0 0 400 300" aria-hidden="true">
 <rect x="0" y="250" width="400" height="50" fill="#2A4255"></rect>
 <rect x="40" y="60" width="16" height="190" fill="#3C5A72"></rect><rect x="344" y="60" width="16" height="190" fill="#3C5A72"></rect>
@@ -166,6 +166,45 @@
 <circle cx="60" cy="30" r="6" fill="#F2F6FA"></circle><circle cx="340" cy="30" r="6" fill="#F2F6FA"></circle>
 </svg><span class="cat">체육시설</span><strong>서남권야구장 · 장비 도장</strong></div>
     </div>
+    <div id="proj-admin" class="admin-bar" style="margin:0 0 24px" hidden>
+      <span><strong>관리자 모드</strong> · 실적을 누르면 수정·삭제할 수 있어요.</span>
+      <button type="button" id="proj-add" class="btn btn-green">+ 시공실적 추가</button>
+    </div>
+    <template id="art-mart"><svg viewBox="0 0 400 300" aria-hidden="true">
+<rect x="0" y="250" width="400" height="50" fill="#2A4255"></rect>
+<rect x="40" y="60" width="16" height="190" fill="#3C5A72"></rect><rect x="344" y="60" width="16" height="190" fill="#3C5A72"></rect>
+<rect x="20" y="40" width="360" height="14" rx="4" fill="#9BD36B"></rect>
+<rect x="90" y="54" width="14" height="50" fill="#9BD36B"></rect><rect x="150" y="54" width="14" height="50" fill="#7CC4F2"></rect><rect x="250" y="54" width="14" height="50" fill="#7CC4F2"></rect><rect x="300" y="54" width="14" height="50" fill="#9BD36B"></rect>
+<rect x="70" y="100" width="270" height="56" rx="28" fill="#4E7594"></rect><rect x="70" y="100" width="270" height="14" rx="7" fill="#6A93B3"></rect>
+<rect x="70" y="170" width="270" height="56" rx="28" fill="#4E7594"></rect><rect x="70" y="170" width="270" height="14" rx="7" fill="#6A93B3"></rect>
+<ellipse cx="84" cy="128" rx="12" ry="28" fill="#3C5A72"></ellipse><ellipse cx="84" cy="198" rx="12" ry="28" fill="#3C5A72"></ellipse>
+<rect x="100" y="226" width="20" height="24" fill="#3C5A72"></rect><rect x="290" y="226" width="20" height="24" fill="#3C5A72"></rect>
+<rect x="352" y="120" width="34" height="90" rx="4" fill="#22384A"></rect><circle cx="369" cy="142" r="9" fill="#7CC4F2"></circle><rect x="360" y="162" width="18" height="6" fill="#9BD36B"></rect><rect x="360" y="174" width="18" height="6" fill="#C9D4DE"></rect>
+<circle cx="200" cy="128" r="10" fill="#C9D4DE"></circle><path d="M200 128l6-5" stroke="#1F3445" stroke-width="2"></path>
+</svg></template>
+    <template id="art-office"><svg viewBox="0 0 400 140" aria-hidden="true">
+<rect x="20" y="40" width="120" height="100" fill="#3C5A72"></rect><rect x="32" y="52" width="20" height="14" fill="#7CC4F2"></rect><rect x="62" y="52" width="20" height="14" fill="#7CC4F2"></rect><rect x="92" y="52" width="20" height="14" fill="#7CC4F2"></rect><rect x="32" y="78" width="20" height="14" fill="#7CC4F2"></rect><rect x="62" y="78" width="20" height="14" fill="#7CC4F2"></rect>
+<path d="M170 140l20-90h80l20 90z" fill="#4E7594"></path><rect x="186" y="38" width="88" height="14" rx="3" fill="#6A93B3"></rect>
+<circle cx="230" cy="26" r="18" fill="none" stroke="#9BD36B" stroke-width="4"></circle><path d="M212 26h36M230 8v36" stroke="#9BD36B" stroke-width="3"></path>
+<path d="M290 110h90" stroke="#7CC4F2" stroke-width="8"></path><path d="M290 126h90" stroke="#9BD36B" stroke-width="8"></path>
+</svg></template>
+    <template id="art-hospital"><svg viewBox="0 0 400 140" aria-hidden="true">
+<path d="M0 90h400" stroke="#7CC4F2" stroke-width="12"></path><path d="M0 120h400" stroke="#9BD36B" stroke-width="12"></path>
+<rect x="60" y="40" width="90" height="70" rx="10" fill="#4E7594"></rect><circle cx="105" cy="75" r="22" fill="#6A93B3"></circle><circle cx="105" cy="75" r="8" fill="#22384A"></circle>
+<rect x="230" y="40" width="90" height="70" rx="10" fill="#4E7594"></rect><circle cx="275" cy="75" r="22" fill="#6A93B3"></circle><circle cx="275" cy="75" r="8" fill="#22384A"></circle>
+<rect x="178" y="20" width="24" height="50" fill="#3C5A72"></rect><rect x="166" y="14" width="48" height="10" rx="3" fill="#C9D4DE"></rect>
+</svg></template>
+    <template id="art-public"><svg viewBox="0 0 400 140" aria-hidden="true">
+<rect x="40" y="20" width="44" height="120" rx="20" fill="#6A93B3"></rect><rect x="52" y="6" width="20" height="18" fill="#C9D4DE"></rect>
+<path d="M72 14h90v40" stroke="#C9D4DE" stroke-width="6" fill="none"></path>
+<circle cx="162" cy="80" r="30" fill="#F2F6FA"></circle><circle cx="162" cy="80" r="24" fill="none" stroke="#3C5A72" stroke-width="3"></circle><path d="M162 80l14-12" stroke="#1F3445" stroke-width="4"></path>
+<rect x="230" y="50" width="150" height="70" rx="35" fill="#4E7594"></rect><path d="M192 80h38" stroke="#C9D4DE" stroke-width="6"></path>
+</svg></template>
+    <template id="art-sports"><svg viewBox="0 0 400 140" aria-hidden="true">
+<path d="M20 140V60a180 60 0 0 1 360 0v80" fill="#3C5A72"></path><path d="M60 140V80a140 44 0 0 1 280 0v60" fill="#4E7594"></path>
+<rect x="140" y="96" width="120" height="44" rx="6" fill="#6A93B3"></rect><rect x="150" y="104" width="100" height="10" rx="5" fill="#9BD36B"></rect><rect x="150" y="120" width="100" height="10" rx="5" fill="#7CC4F2"></rect>
+<circle cx="60" cy="30" r="6" fill="#F2F6FA"></circle><circle cx="340" cy="30" r="6" fill="#F2F6FA"></circle>
+</svg></template>
     <div class="pills">
       <span>홈플러스 강서·잠실·동대문·금천·월곡·동수원점</span>
       <span>이마트 검단·김포한강점</span>
@@ -242,7 +281,7 @@
       <button type="button" id="admin-logout" class="btn more-btn">로그아웃</button>
     </div>
     <div class="board-grid">
-      <div class="posts">
+      <div class="posts board-left" id="board-left" tabindex="0" aria-label="상담글 목록 (최신순)">
         <p id="board-mode" class="small-note"></p>
         <div id="post-list" class="posts" aria-live="polite"></div>
         <button type="button" id="more-btn" class="btn more-btn" hidden>이전 글 더 보기</button>
@@ -279,6 +318,53 @@
   </div>
 </section>
 </main>
+
+
+<dialog id="proj-detail" class="modal" aria-labelledby="pd-title">
+  <div class="modal-head">
+    <span class="cat-chip" id="pd-cat"></span>
+    <button type="button" class="modal-x" data-close aria-label="닫기">×</button>
+  </div>
+  <h3 id="pd-title"></h3>
+  <p class="pd-meta" id="pd-meta"></p>
+  <div class="pd-photos" id="pd-photos"></div>
+  <p class="pd-content" id="pd-content"></p>
+  <div class="row-btns" id="pd-admin" hidden>
+    <button type="button" class="btn btn-blue" id="pd-edit">수정</button>
+    <button type="button" class="btn btn-del" id="pd-del">삭제</button>
+  </div>
+</dialog>
+
+<dialog id="proj-edit" class="modal" aria-labelledby="pe-heading">
+  <form id="pe-form" class="pe-form" novalidate>
+    <div class="modal-head">
+      <h3 id="pe-heading">시공실적 추가</h3>
+      <button type="button" class="modal-x" data-close aria-label="닫기">×</button>
+    </div>
+    <label for="pe-cat">고객사 업종</label>
+    <select id="pe-cat" required>
+      <option>대형마트</option><option>영화관</option><option>병원</option><option>오피스</option>
+      <option>공공시설</option><option>교육시설</option><option>체육시설</option><option>공장·산업시설</option><option>기타</option>
+    </select>
+    <label for="pe-company">업체명</label>
+    <input id="pe-company" type="text" maxlength="60" placeholder="예: 홈플러스 영등포점" required>
+    <label for="pe-title">제목</label>
+    <input id="pe-title" type="text" maxlength="100" placeholder="예: 흡수식 냉온수기 세관" required>
+    <label for="pe-date">공사 시기 (선택)</label>
+    <input id="pe-date" type="text" maxlength="20" placeholder="예: 2026.10">
+    <label for="pe-content">공사 내용</label>
+    <textarea id="pe-content" rows="5" maxlength="3000" placeholder="장비, 용량, 작업 내용 등을 적어 주세요."></textarea>
+    <span class="pe-label">사진 (최대 6장, 첫 번째 사진이 대표 사진)</span>
+    <div id="pe-photos" class="pe-photos"></div>
+    <label for="pe-files" class="btn more-btn pe-file-btn">사진 추가하기</label>
+    <input id="pe-files" type="file" accept="image/*" multiple class="visually-hidden">
+    <p id="pe-msg" class="form-msg" role="status"></p>
+    <div class="row-btns">
+      <button type="submit" class="btn btn-blue" id="pe-save">저장</button>
+      <button type="button" class="btn more-btn" data-close>취소</button>
+    </div>
+  </form>
+</dialog>
 
 <footer>
   <div class="wrap">

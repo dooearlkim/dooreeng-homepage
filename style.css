@@ -203,6 +203,9 @@ details p { margin-top: 12px; font-size: 16px; color: var(--sub); }
 .btn-del { background: #fff; color: #B42318; border-color: #F1B5AE; }
 .contact-line { font-size: 14px; color: var(--blue); font-weight: 700; }
 
+.board-left { overflow-y: auto; max-height: 640px; padding-right: 6px; scrollbar-width: thin; }
+.board-left:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 14px; }
+
 /* 문의 */
 .contact { background: var(--green); color: #fff; }
 .contact .wrap { padding: 80px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 32px; }
@@ -241,3 +244,40 @@ body { animation: pagefade 0.6s ease both; }
   .site-header { position: static; }
   .site-header .btn { padding: 10px 14px; font-size: 15px; }
 }
+
+/* 시공실적: 클릭 가능한 타일 */
+button.tile { font-family: inherit; text-align: left; border: 0; cursor: pointer; width: 100%; height: 100%; }
+button.tile:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+.tile.has-photo { position: relative; justify-content: flex-end; background-size: cover; background-position: center; }
+.tile.has-photo::before { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(14,27,38,0.92) 0%, rgba(14,27,38,0.15) 60%); border-radius: inherit; }
+.tile.has-photo > * { position: relative; }
+.tile .more { font-size: 13px; color: var(--light); margin-top: 4px; }
+
+/* 팝업 */
+.modal { border: 0; border-radius: 18px; padding: 28px; width: min(720px, 92vw); max-height: 88vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.35); color: var(--text); }
+.modal::backdrop { background: rgba(10,22,32,0.6); backdrop-filter: blur(3px); }
+.modal[open] { animation: pop 0.28s cubic-bezier(.2,.7,.2,1); }
+@keyframes pop { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+.modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.modal-x { background: var(--pale); border: 0; width: 44px; height: 44px; border-radius: 50%; font-size: 24px; cursor: pointer; color: var(--text); }
+.cat-chip { font-size: 14px; font-weight: 700; color: var(--green); background: #E3F1D6; padding: 4px 12px; border-radius: 999px; }
+#pd-title { font-size: 26px; font-weight: 900; }
+.pd-meta { color: var(--muted); font-size: 15px; margin: 4px 0 16px; }
+.pd-photos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.pd-photos .main { width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; background: var(--pale); }
+.pd-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.pd-thumbs button { padding: 0; border: 2px solid transparent; border-radius: 8px; cursor: pointer; background: none; }
+.pd-thumbs button[aria-pressed="true"] { border-color: var(--blue); }
+.pd-thumbs img { width: 72px; height: 54px; object-fit: cover; border-radius: 6px; display: block; }
+.pd-art { background: var(--navy-2); border-radius: 12px; padding: 24px; }
+.pd-content { white-space: pre-line; font-size: 16px; color: var(--sub); margin-bottom: 16px; }
+.pe-form { display: flex; flex-direction: column; gap: 8px; }
+.pe-form h3 { font-size: 22px; font-weight: 900; }
+.pe-form label, .pe-label { font-size: 15px; font-weight: 700; margin-top: 6px; }
+.pe-form input[type="text"], .pe-form select, .pe-form textarea { font-family: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid #C5D3DF; border-radius: 8px; min-height: 44px; width: 100%; background: #fff; }
+.pe-photos { display: flex; gap: 10px; flex-wrap: wrap; }
+.pe-photo { position: relative; }
+.pe-photo img { width: 110px; height: 82px; object-fit: cover; border-radius: 8px; display: block; }
+.pe-photo button { position: absolute; top: 4px; right: 4px; background: rgba(14,27,38,0.85); color: #fff; border: 0; border-radius: 999px; font-size: 12px; padding: 4px 8px; cursor: pointer; }
+.pe-file-btn { align-self: flex-start; margin-top: 4px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
