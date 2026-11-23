@@ -167,6 +167,8 @@ details p { margin-top: 12px; font-size: 16px; color: var(--sub); }
 .post-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; }
 .status { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
 .status.done { background: #E3F1D6; color: var(--green); }
+.status.pinned { background: #E1EEF8; color: var(--blue); }
+.post-top .status + .status { margin-right: auto; }
 .status.wait { background: #FFF1DC; color: #8A4B00; }
 .post .who { font-size: 13px; color: var(--muted); }
 .post h3 { font-size: 18px; font-weight: 700; }

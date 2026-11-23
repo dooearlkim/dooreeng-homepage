@@ -148,6 +148,36 @@
   }
   var isAdmin = false;
 
+  // 게시판 맨 위에 항상 보이는 '자주 받는 문의' (두레이엔지가 직접 작성)
+  var PINNED = [
+    { title: '난방 전환 전에 점검을 꼭 받아야 하나요?',
+      body: '여름 내내 냉방으로 쓰던 흡수식 냉온수기를 겨울 난방으로 바꾸려고 합니다. 그냥 전환해도 되나요?',
+      answer: '전환 전 점검을 권합니다. 연소 장치(버너)와 안전장치 작동, 용액 상태, 진공도를 확인하고 냉각수 배관 동파 대비까지 함께 해야 겨울철 갑작스러운 정지를 막을 수 있습니다.' },
+    { title: '진공도가 떨어지면 어떤 증상이 나타나나요?',
+      body: '냉방은 되는데 예전만큼 시원하지 않습니다. 진공 문제일 수도 있나요?',
+      answer: '네, 가능성이 있습니다. 미세한 누설로 공기가 들어오면 냉수 온도가 잘 내려가지 않고 냉방 능력이 떨어집니다. 질소 가압 누설 검사로 새는 곳을 찾고 진공 작업으로 성능을 회복할 수 있습니다.' },
+    { title: '세관 작업은 얼마나 걸리고, 영업 중에도 가능한가요?',
+      body: '마트 영업에 지장이 없도록 하고 싶습니다.',
+      answer: '장비 용량과 오염 정도에 따라 다르지만 보통 대당 1~2일 정도 걸립니다. 냉방을 쓰지 않는 시기나 영업시간 외로 일정을 맞춰 영업에 지장이 없도록 진행합니다.' },
+    { title: '연간 유지보수 견적은 어떻게 받나요?',
+      body: '건물 냉온수기 3대를 1년 단위로 맡기고 싶습니다.',
+      answer: '장비 제조사, 용량(RT), 대수를 알려주시면 현장 점검 후 정기 점검 횟수와 세관, 긴급 출동 범위를 포함한 견적을 드립니다. 위 30초 가견적이나 문자로 먼저 남겨주셔도 됩니다.' }
+  ];
+  function renderPinned(p) {
+    var art = el('article', 'post');
+    var top = el('div', 'post-top');
+    top.appendChild(el('span', 'status pinned', '자주 받는 문의'));
+    top.appendChild(el('span', 'status done', '답변 완료'));
+    art.appendChild(top);
+    art.appendChild(el('h3', null, p.title));
+    art.appendChild(el('p', 'body', p.body));
+    var ans = el('div', 'answer');
+    ans.appendChild(el('strong', null, '두레이엔지 답변'));
+    ans.appendChild(el('p', null, p.answer));
+    art.appendChild(ans);
+    return art;
+  }
+
   function renderPost(p) {
     var art = el('article', 'post');
     var top = el('div', 'post-top');
@@ -272,8 +302,10 @@
   adminLogin.addEventListener('submit', async function (e) {
     e.preventDefault();
     aMsg.textContent = '';
-    var r = await db.auth.signInWithPassword({ email: document.getElementById('a-email').value.trim(), password: document.getElementById('a-pw').value });
-    if (r.error) { aMsg.textContent = '이메일 또는 비밀번호가 맞지 않습니다.'; return; }
+    var id = document.getElementById('a-email').value.trim();
+    if (id.indexOf('@') < 0) id = id + '@' + (CFG.ADMIN_ID_DOMAIN || 'dooreeng.example');
+    var r = await db.auth.signInWithPassword({ email: id.toLowerCase(), password: document.getElementById('a-pw').value });
+    if (r.error) { aMsg.textContent = '아이디 또는 비밀번호가 맞지 않습니다.'; return; }
     adminLogin.reset();
     var st = await checkAdmin();
     if (st === 'none') {
@@ -320,7 +352,10 @@
       demoPosts.forEach(function (p) { list.appendChild(renderPost(p)); });
       return;
     }
-    if (reset) { list.innerHTML = ''; loaded = 0; }
+    if (reset) {
+      list.innerHTML = ''; loaded = 0;
+      if (!isAdmin) PINNED.forEach(function (p) { list.appendChild(renderPinned(p)); });
+    }
     var q = db.from(isAdmin ? 'posts' : 'public_posts')
       .select('*')
       .order('created_at', { ascending: false })
@@ -332,8 +367,8 @@
       return;
     }
     modeNote.textContent = '';
-    if (loaded === 0 && res.data.length === 0) {
-      list.appendChild(el('p', 'small-note', isAdmin && waitOnly.checked ? '답변을 기다리는 글이 없습니다.' : '아직 등록된 글이 없습니다. 첫 문의를 남겨주세요.'));
+    if (loaded === 0 && res.data.length === 0 && isAdmin) {
+      list.appendChild(el('p', 'small-note', waitOnly.checked ? '답변을 기다리는 글이 없습니다.' : '아직 등록된 글이 없습니다.'));
     }
     res.data.forEach(function (p) { list.appendChild(renderPost(p)); });
     loaded += res.data.length;
