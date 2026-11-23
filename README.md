@@ -12,6 +12,7 @@ GitHub Pages로 무료 운영하고, 고객지원 게시판은 Supabase(무료)�
 | `config.js` | **전화번호, 게시판 연결 정보** (가장 자주 고칠 파일) |
 | `app.js` | 가견적 계산기, 게시판 동작 (단가표도 여기 있음) |
 | `supabase/schema.sql` | 게시판 DB 설정 (한 번만 실행) |
+| `supabase/admin_login_id.sql` | 관리자 아이디 로그인 설정 (한 번만 실행) |
 | `supabase/admin_2step.sql` | 관리자 2단계 로그인 설정 (한 번만 실행) |
 | `supabase/admin_questions_template.sql` | 보안 질문 등록 양식 (**실제 답을 여기에 적어 올리지 말 것**) |
 | `assets/` | 로고, 사진 |

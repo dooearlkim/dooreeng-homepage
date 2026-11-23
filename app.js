@@ -303,7 +303,11 @@
     e.preventDefault();
     aMsg.textContent = '';
     var id = document.getElementById('a-email').value.trim();
-    if (id.indexOf('@') < 0) id = id + '@' + (CFG.ADMIN_ID_DOMAIN || 'dooreeng.example');
+    if (id.indexOf('@') < 0) {
+      var m = await db.rpc('resolve_admin_login', { p_login: id });
+      id = (m && m.data) ? m.data : '';
+    }
+    if (!id) { aMsg.textContent = '아이디 또는 비밀번호가 맞지 않습니다.'; return; }
     var r = await db.auth.signInWithPassword({ email: id.toLowerCase(), password: document.getElementById('a-pw').value });
     if (r.error) { aMsg.textContent = '아이디 또는 비밀번호가 맞지 않습니다.'; return; }
     adminLogin.reset();
