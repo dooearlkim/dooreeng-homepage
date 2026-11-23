@@ -1,0 +1,15 @@
+# 무료 Supabase 프로젝트가 1주일 동안 사용이 없으면 일시정지되는 것을 막기 위해
+# 3일마다 게시판 목록을 한 번 조회합니다. (GitHub 무료 기능, 비용 없음)
+name: keep-supabase-alive
+on:
+  schedule:
+    - cron: '17 0 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 게시판 목록 조회
+        run: |
+          curl -sf "https://wfpthvtogogdaqarupkc.supabase.co/rest/v1/public_posts?select=id&limit=1" \
+            -H "apikey: sb_publishable_qWD9LlXUiYv4792L9M-9YA_q1BXF5AI" -o /dev/null
