@@ -281,3 +281,11 @@ button.tile:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; 
 .pe-photo button { position: absolute; top: 4px; right: 4px; background: rgba(14,27,38,0.85); color: #fff; border: 0; border-radius: 999px; font-size: 12px; padding: 4px 8px; cursor: pointer; }
 .pe-file-btn { align-self: flex-start; margin-top: 4px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 상단 로그인 아이콘 */
+.head-actions { display: flex; align-items: center; gap: 10px; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.18); background: transparent; color: #9FB2C2; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+.icon-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+.icon-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.modal-sm { width: min(420px, 92vw); }
+.modal-sm .admin-login { margin-top: 8px; padding: 0; grid-template-columns: 1fr; background: none; }

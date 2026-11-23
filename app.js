@@ -245,6 +245,10 @@
   }
 
   var adminToggle = document.getElementById('admin-toggle');
+  var adminDlg = document.getElementById('admin-dlg');
+  function openAdminDlg() { if (!adminDlg.open) { if (adminDlg.showModal) adminDlg.showModal(); else adminDlg.setAttribute('open', ''); } }
+  function closeAdminDlg() { if (adminDlg.open) { if (adminDlg.close) adminDlg.close(); else adminDlg.removeAttribute('open'); } }
+  adminDlg.addEventListener('click', function (e) { if (e.target === adminDlg) closeAdminDlg(); });
   var adminLogin = document.getElementById('admin-login');
   var adminBar = document.getElementById('admin-bar');
   var waitOnly = document.getElementById('a-wait');
@@ -267,8 +271,9 @@
     isAdmin = status === 'verified';
     adminBar.hidden = !isAdmin;
     adminToggle.hidden = !db || isAdmin;
-    adminLogin.hidden = true;
+    adminLogin.hidden = status !== 'none';
     qForm.hidden = true;
+    if (isAdmin) closeAdminDlg();
     if (status === 'need_answer') await askQuestion();
     if (status === 'locked') showLocked();
     onAdminChange();
@@ -276,6 +281,8 @@
   }
   function showLocked() {
     qForm.hidden = false;
+    adminLogin.hidden = true;
+    openAdminDlg();
     document.getElementById('q-text').textContent = '보안 질문을 5번 틀려서 30분 동안 잠겼습니다.';
     document.getElementById('q-answer').disabled = true;
     document.getElementById('q-submit').disabled = true;
@@ -285,20 +292,24 @@
     if (r.error) {
       if (String(r.error.message).indexOf('locked') >= 0) { showLocked(); return; }
       qForm.hidden = false;
+      openAdminDlg();
       document.getElementById('q-text').textContent = '등록된 보안 질문이 없습니다. README의 "보안 질문 등록"을 먼저 진행해 주세요.';
       return;
     }
     qForm.hidden = false;
+    adminLogin.hidden = true;
+    openAdminDlg();
     document.getElementById('q-answer').disabled = false;
     document.getElementById('q-submit').disabled = false;
     document.getElementById('q-text').textContent = r.data;
     document.getElementById('q-answer').value = '';
     document.getElementById('q-answer').focus();
   }
-  adminToggle.addEventListener('click', function () {
-    adminLogin.hidden = !adminLogin.hidden;
-    if (!adminLogin.hidden) document.getElementById('a-email').focus();
+  adminToggle.addEventListener('click', async function () {
+    var st = await checkAdmin();
+    if (st === 'none') { adminLogin.hidden = false; openAdminDlg(); document.getElementById('a-email').focus(); }
   });
+  document.getElementById('admin-dlg-x').addEventListener('click', closeAdminDlg);
   // 1단계: 비밀번호
   adminLogin.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -342,6 +353,7 @@
   document.getElementById('q-cancel').addEventListener('click', async function () {
     await db.auth.signOut();
     await checkAdmin();
+    closeAdminDlg();
   });
   document.getElementById('admin-logout').addEventListener('click', async function () {
     await db.rpc('admin_logout');
