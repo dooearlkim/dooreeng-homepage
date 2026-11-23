@@ -228,6 +228,14 @@
       <button type="submit" class="btn btn-blue">로그인</button>
       <p id="a-msg" class="form-msg err" role="status"></p>
     </form>
+    <form id="admin-question" class="admin-login" hidden>
+      <p style="grid-column: 1 / -1; font-size: 14px; font-weight: 700; color: var(--green)">2단계 확인 · 보안 질문</p>
+      <label for="q-answer" id="q-text" style="grid-column: 1 / -1; font-size: 18px">질문</label>
+      <input id="q-answer" type="password" autocomplete="off" required>
+      <button type="submit" id="q-submit" class="btn btn-blue">확인</button>
+      <button type="button" id="q-cancel" class="btn more-btn">취소</button>
+      <p id="q-msg" class="form-msg err" role="status" style="grid-column: 1 / -1"></p>
+    </form>
     <div id="admin-bar" class="admin-bar" hidden>
       <span><strong>관리자 모드</strong> · 글마다 답변 달기와 삭제를 할 수 있어요. 비밀글 내용과 연락처도 보입니다.</span>
       <label class="check"><input id="a-wait" type="checkbox"> 답변 대기 글만 보기</label>
@@ -275,7 +283,7 @@
 <footer>
   <div class="wrap">
     <span>두레이엔지 · 대표 [대표자명] · 사업자등록번호 [000-00-00000] · [사무실 주소] · [이메일]</span>
-    <span>© 두레이엔지 · <a href="admin.html">관리자</a></span>
+    <span>© 두레이엔지 · <a href="#board">관리자</a></span>
   </div>
 </footer>
 

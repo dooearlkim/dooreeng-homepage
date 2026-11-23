@@ -11,8 +11,9 @@ GitHub Pages로 무료 운영하고, 고객지원 게시판은 Supabase(무료)�
 | `style.css` | 색상·디자인 |
 | `config.js` | **전화번호, 게시판 연결 정보** (가장 자주 고칠 파일) |
 | `app.js` | 가견적 계산기, 게시판 동작 (단가표도 여기 있음) |
-| `admin.html`, `admin.js` | 동생분이 답변을 다는 관리자 화면 |
 | `supabase/schema.sql` | 게시판 DB 설정 (한 번만 실행) |
+| `supabase/admin_2step.sql` | 관리자 2단계 로그인 설정 (한 번만 실행) |
+| `supabase/admin_questions_template.sql` | 보안 질문 등록 양식 (**실제 답을 여기에 적어 올리지 말 것**) |
 | `assets/` | 로고, 사진 |
 
 ## 자주 하는 수정
@@ -39,4 +40,13 @@ GitHub 웹사이트에서 파일을 열고 연필(Edit) 버튼으로 고친 뒤 
    (anon 키는 공개되어도 괜찮은 키입니다. `service_role` 키는 절대 넣지 마세요.)
 6. **Authentication → Sign In / Providers** 에서 회원가입(Allow new users to sign up)을 꺼 두면 더 안전합니다.
 
-답변은 홈페이지 맨 아래 **관리자** 링크(`admin.html`)에서 로그인해서 답니다.
+## 관리자 2단계 로그인
+
+1. SQL Editor 에서 `supabase/admin_2step.sql` 내용을 붙여넣고 **Run**
+2. `supabase/admin_questions_template.sql` 내용을 SQL Editor 에 붙여넣고, 질문과 '정답' 부분을 바꿔서 **Run**
+   (답은 암호화되어 저장됩니다. 실행 후 SQL Editor 에 저장된 쿼리는 삭제하세요.)
+
+## 답변 달기
+
+홈페이지 고객지원 게시판의 **관리자 로그인** → 비밀번호 → 보안 질문(무작위 1개) 순서로 들어가면
+글마다 답변 등록·삭제 버튼이 나타납니다. 보안 질문을 5번 틀리면 30분 동안 잠깁니다.

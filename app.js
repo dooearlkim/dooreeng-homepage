@@ -219,35 +219,94 @@
   var adminBar = document.getElementById('admin-bar');
   var waitOnly = document.getElementById('a-wait');
 
+  var qForm = document.getElementById('admin-question');
+  var aMsg = document.getElementById('a-msg');
+  var qMsg = document.getElementById('q-msg');
+
+  // 관리자 상태: none / need_answer / locked / verified (판단은 서버에서)
   async function checkAdmin() {
     isAdmin = false;
+    var status = 'none';
     if (db) {
       var s = await db.auth.getSession();
       if (s.data && s.data.session) {
-        var r = await db.rpc('is_admin');
-        isAdmin = r.data === true;
+        var r = await db.rpc('admin_status');
+        status = r.error ? 'none' : r.data;
       }
     }
+    isAdmin = status === 'verified';
     adminBar.hidden = !isAdmin;
     adminToggle.hidden = !db || isAdmin;
-    if (isAdmin) adminLogin.hidden = true;
+    adminLogin.hidden = true;
+    qForm.hidden = true;
+    if (status === 'need_answer') await askQuestion();
+    if (status === 'locked') showLocked();
+    return status;
+  }
+  function showLocked() {
+    qForm.hidden = false;
+    document.getElementById('q-text').textContent = '보안 질문을 5번 틀려서 30분 동안 잠겼습니다.';
+    document.getElementById('q-answer').disabled = true;
+    document.getElementById('q-submit').disabled = true;
+  }
+  async function askQuestion() {
+    var r = await db.rpc('get_admin_question');
+    if (r.error) {
+      if (String(r.error.message).indexOf('locked') >= 0) { showLocked(); return; }
+      qForm.hidden = false;
+      document.getElementById('q-text').textContent = '등록된 보안 질문이 없습니다. README의 "보안 질문 등록"을 먼저 진행해 주세요.';
+      return;
+    }
+    qForm.hidden = false;
+    document.getElementById('q-answer').disabled = false;
+    document.getElementById('q-submit').disabled = false;
+    document.getElementById('q-text').textContent = r.data;
+    document.getElementById('q-answer').value = '';
+    document.getElementById('q-answer').focus();
   }
   adminToggle.addEventListener('click', function () {
     adminLogin.hidden = !adminLogin.hidden;
     if (!adminLogin.hidden) document.getElementById('a-email').focus();
   });
+  // 1단계: 비밀번호
   adminLogin.addEventListener('submit', async function (e) {
     e.preventDefault();
-    var m = document.getElementById('a-msg');
-    m.textContent = '';
+    aMsg.textContent = '';
     var r = await db.auth.signInWithPassword({ email: document.getElementById('a-email').value.trim(), password: document.getElementById('a-pw').value });
-    if (r.error) { m.textContent = '이메일 또는 비밀번호가 맞지 않습니다.'; return; }
-    await checkAdmin();
-    if (!isAdmin) { m.textContent = '관리자로 등록된 계정이 아닙니다.'; adminLogin.hidden = false; await db.auth.signOut(); return; }
+    if (r.error) { aMsg.textContent = '이메일 또는 비밀번호가 맞지 않습니다.'; return; }
     adminLogin.reset();
+    var st = await checkAdmin();
+    if (st === 'none') {
+      await db.auth.signOut();
+      adminLogin.hidden = false;
+      aMsg.textContent = '관리자로 등록된 계정이 아닙니다.';
+    }
+  });
+  // 2단계: 보안 질문
+  qForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    qMsg.textContent = '';
+    var r = await db.rpc('verify_admin_answer', { ans: document.getElementById('q-answer').value });
+    if (r.error) {
+      if (String(r.error.message).indexOf('locked') >= 0) { showLocked(); return; }
+      qMsg.textContent = '확인 중 문제가 생겼습니다. 다시 시도해 주세요.';
+      return;
+    }
+    if (r.data !== true) {
+      qMsg.textContent = '답이 맞지 않습니다. (5번 틀리면 30분 동안 잠깁니다)';
+      var st = await db.rpc('admin_status');
+      if (st.data === 'locked') showLocked();
+      return;
+    }
+    await checkAdmin();
     loadPosts(true);
   });
+  document.getElementById('q-cancel').addEventListener('click', async function () {
+    await db.auth.signOut();
+    await checkAdmin();
+  });
   document.getElementById('admin-logout').addEventListener('click', async function () {
+    await db.rpc('admin_logout');
     await db.auth.signOut();
     await checkAdmin();
     loadPosts(true);
@@ -281,26 +340,6 @@
     moreBtn.hidden = res.data.length < PAGE;
   }
   moreBtn.addEventListener('click', function () { loadPosts(false); });
-
-  // 새 글이 올라오면 메일로 알림 (config.js 의 NOTIFY_ACCESS_KEY 가 있을 때만)
-  function notifyByEmail(row) {
-    if (!CFG.NOTIFY_ACCESS_KEY) return;
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: CFG.NOTIFY_ACCESS_KEY,
-        subject: '[두레이엔지 홈페이지] 새 상담글: ' + row.title,
-        from_name: '두레이엔지 홈페이지',
-        '작성자': row.author,
-        '연락처': row.contact || '(없음)',
-        '제목': row.title,
-        '내용': row.body,
-        '비밀글': row.is_secret ? '예' : '아니오',
-        '답변하러 가기': location.href.split('#')[0] + '#board'
-      })
-    }).catch(function () {});
-  }
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -336,7 +375,6 @@
         msg.classList.add('err');
         return;
       }
-      notifyByEmail(row);
       await loadPosts(true);
     } else {
       btn.disabled = false;
@@ -353,6 +391,6 @@
 
   checkAdmin().then(function () { loadPosts(true); });
   if (db) db.auth.onAuthStateChange(function (ev) {
-    if (ev === 'SIGNED_OUT') { isAdmin = false; adminBar.hidden = true; adminToggle.hidden = false; }
+    if (ev === 'SIGNED_OUT') { isAdmin = false; adminBar.hidden = true; adminToggle.hidden = false; qForm.hidden = true; }
   });
 })();

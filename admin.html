@@ -2,62 +2,11 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>두레이엔지 관리자 | 고객지원 답변</title>
-<link rel="icon" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-  body { background: var(--pale-blue); }
-  .admin-wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; display: flex; flex-direction: column; gap: 16px; }
-  .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-  .contact-line { font-size: 14px; color: var(--blue); font-weight: 700; }
-  .post textarea { font-family: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid #C5D3DF; border-radius: 8px; width: 100%; resize: vertical; }
-  .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-del { background: #fff; color: #B42318; border-color: #F1B5AE; }
-</style>
+<meta http-equiv="refresh" content="0; url=index.html#board">
+<title>두레이엔지 관리자</title>
 </head>
 <body>
-<header class="site-header">
-  <div class="inner">
-    <a href="index.html" class="logo"><img src="assets/logo.png" alt="두레이엔지 홈으로"></a>
-    <strong style="color:#fff">고객지원 관리자</strong>
-    <button type="button" id="logout" class="btn btn-ghost" hidden>로그아웃</button>
-  </div>
-</header>
-
-<main class="admin-wrap">
-  <form id="login" class="board-form" hidden>
-    <h3>관리자 로그인</h3>
-    <label for="email">이메일</label>
-    <input id="email" type="text" autocomplete="username" required>
-    <label for="pw">비밀번호</label>
-    <input id="pw" type="password" autocomplete="current-password" required>
-    <button type="submit" class="btn btn-blue">로그인</button>
-    <p id="login-msg" class="form-msg err" role="status"></p>
-  </form>
-
-  <section id="panel" hidden>
-    <div class="bar">
-      <div class="tabs">
-        <button type="button" class="chip" data-filter="wait" aria-pressed="true">답변 대기</button>
-        <button type="button" class="chip" data-filter="all" aria-pressed="false">전체 글</button>
-      </div>
-      <button type="button" id="reload" class="btn more-btn">새로고침</button>
-    </div>
-    <p id="panel-msg" class="small-note" role="status" style="margin:12px 0"></p>
-    <div id="admin-list" class="posts"></div>
-  </section>
-
-  <p id="setup-msg" class="small-note" hidden>config.js 에 Supabase 정보가 아직 없습니다. README의 "게시판 연결"을 먼저 진행해 주세요.</p>
-</main>
-
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="admin.js"></script>
+<p>관리자 기능은 홈페이지 고객지원 게시판으로 옮겨졌습니다. <a href="index.html#board">이동하기</a></p>
 </body>
 </html>
