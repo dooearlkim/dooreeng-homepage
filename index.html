@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123c">
+<link rel="stylesheet" href="style.css?v=20261123d">
 </head>
 <body>
 
@@ -122,11 +122,28 @@
       <p class="amount" id="est-amount" aria-live="polite">항목을 골라 주세요</p>
       <p class="detail" id="est-detail">작업 · 용량 · 대수를 선택하면 예상 금액이 바로 표시됩니다.</p>
       <div class="actions">
-        <a href="#contact" class="btn btn-green" id="est-sms"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>이 내용으로 문자 견적 요청</a>
+        <button type="button" class="btn btn-green" id="est-request"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>이 내용으로 견적 요청하기</button>
         <a href="#contact" class="btn btn-ghost js-tel">전화로 바로 상담</a>
       </div>
       <p class="note">※ 부가세 별도. 실제 금액은 현장 상태에 따라 달라질 수 있습니다.</p>
     </div>
+  </div>
+</section>
+
+<section id="leads" class="leads" hidden>
+  <div class="wrap" style="padding-top:64px; padding-bottom:64px">
+    <div class="head-row" style="margin-bottom:20px">
+      <div class="stack">
+        <p class="eyebrow">관리자 전용</p>
+        <h2>견적 요청 (가망 고객)</h2>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center">
+        <label class="check"><input id="lead-open" type="checkbox" checked> 진행 중만 보기</label>
+        <button type="button" id="lead-reload" class="btn more-btn">새로고침</button>
+      </div>
+    </div>
+    <p id="lead-msg" class="small-note" role="status"></p>
+    <div id="lead-list" class="lead-list"></div>
   </div>
 </section>
 
@@ -264,7 +281,7 @@
       </div>
     </div>
     <div id="admin-bar" class="admin-bar" hidden>
-      <span><strong>관리자 모드</strong> · 글마다 답변 달기와 삭제를 할 수 있어요. 비밀글 내용과 연락처도 보입니다.</span>
+      <span><strong>관리자 모드</strong> · 글마다 답변 달기와 삭제를 할 수 있어요. <a href="#leads" style="color:#9BD36B">견적 요청 보기 →</a></span>
       <label class="check"><input id="a-wait" type="checkbox"> 답변 대기 글만 보기</label>
       <button type="button" id="admin-logout" class="btn more-btn">로그아웃</button>
     </div>
@@ -307,6 +324,28 @@
 </section>
 </main>
 
+
+<dialog id="quote-dlg" class="modal modal-sm" aria-labelledby="qd-title">
+  <form id="quote-form" class="pe-form" novalidate>
+    <div class="modal-head">
+      <h3 id="qd-title">견적 요청하기</h3>
+      <button type="button" class="modal-x" data-close aria-label="닫기">×</button>
+    </div>
+    <div class="qd-summary" id="qd-summary"></div>
+    <label for="qd-company">건물명 또는 회사명</label>
+    <input id="qd-company" type="text" maxlength="60" placeholder="예: OO빌딩 시설팀" required>
+    <label for="qd-name">담당자 성함 (선택)</label>
+    <input id="qd-name" type="text" maxlength="30">
+    <label for="qd-phone">연락처</label>
+    <input id="qd-phone" type="tel" maxlength="30" placeholder="010-0000-0000" required>
+    <label for="qd-memo">추가 내용 (선택)</label>
+    <textarea id="qd-memo" rows="3" maxlength="1000" placeholder="건물 위치, 원하는 일정 등"></textarea>
+    <label class="check qd-agree"><input id="qd-agree" type="checkbox"> 개인정보 수집·이용에 동의합니다 (필수)</label>
+    <p class="qd-policy">수집 항목: 건물명·회사명, 담당자 성함, 연락처, 문의 내용 · 목적: 견적 안내 및 상담 연락 · 보유 기간: 상담 종료 후 1년 (요청 시 즉시 삭제)</p>
+    <p id="qd-msg" class="form-msg" role="status"></p>
+    <button type="submit" class="btn btn-green" id="qd-submit">견적 요청 보내기</button>
+  </form>
+</dialog>
 
 <dialog id="admin-dlg" class="modal modal-sm" aria-label="로그인">
   <div class="modal-head">
@@ -384,8 +423,8 @@
   </div>
 </footer>
 
-<script src="config.js?v=20261123c"></script>
+<script src="config.js?v=20261123d"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=20261123c"></script>
+<script src="app.js?v=20261123d"></script>
 </body>
 </html>

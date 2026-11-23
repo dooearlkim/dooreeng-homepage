@@ -274,7 +274,7 @@ button.tile:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; 
 .pe-form { display: flex; flex-direction: column; gap: 8px; }
 .pe-form h3 { font-size: 22px; font-weight: 900; }
 .pe-form label, .pe-label { font-size: 15px; font-weight: 700; margin-top: 6px; }
-.pe-form input[type="text"], .pe-form select, .pe-form textarea { font-family: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid #C5D3DF; border-radius: 8px; min-height: 44px; width: 100%; background: #fff; }
+.pe-form input[type="text"], .pe-form input[type="tel"], .pe-form select, .pe-form textarea { font-family: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid #C5D3DF; border-radius: 8px; min-height: 44px; width: 100%; background: #fff; }
 .pe-photos { display: flex; gap: 10px; flex-wrap: wrap; }
 .pe-photo { position: relative; }
 .pe-photo img { width: 110px; height: 82px; object-fit: cover; border-radius: 8px; display: block; }
@@ -289,3 +289,18 @@ button.tile:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; 
 .icon-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 .modal-sm { width: min(420px, 92vw); }
 .modal-sm .admin-login { margin-top: 8px; padding: 0; grid-template-columns: 1fr; background: none; }
+
+/* 견적 요청 팝업 */
+.qd-summary { background: var(--pale-blue); border-radius: 10px; padding: 12px 14px; font-size: 15px; white-space: pre-line; }
+.qd-agree { margin-top: 6px; }
+.qd-policy { font-size: 12.5px; color: var(--muted); }
+/* 가망 고객 (관리자 전용) */
+.leads { background: #FFF8EC; }
+.lead-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.lead { background: #fff; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 14px rgba(14,27,38,0.06); }
+.lead .lead-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lead h3 { font-size: 18px; font-weight: 700; }
+.lead .lead-info { font-size: 14px; color: var(--sub); white-space: pre-line; }
+.lead select, .lead textarea { font-family: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid #C5D3DF; border-radius: 8px; width: 100%; min-height: 40px; background: #fff; }
+.lead .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.lead .btn { font-size: 14px; padding: 8px 14px; }

@@ -112,9 +112,10 @@
         detail.textContent = j.label + '은(는) 설비 상태에 따라 금액 차이가 커서, 점검 후 정확히 알려드립니다.';
       }
     }
-    var msg = '[두레이엔지 견적 문의]\n작업: ' + (j ? j.label : '-') + '\n용량: ' + (c ? c.label : '-') +
-      '\n대수: ' + (n ? n.label : '-') + '\n건물명/위치: ';
-    document.getElementById('est-sms').href = smsHref(msg);
+  }
+  function estimateText() {
+    var a = document.getElementById('est-amount').textContent;
+    return (pick.job && pick.cap && pick.count) ? a : null;
   }
   makeChips('chips-job', JOBS, 'job');
   makeChips('chips-cap', CAPS, 'cap');
@@ -561,6 +562,8 @@
 
   function onAdminChange() {
     projAdmin.hidden = !(isAdmin && projects);
+    var ls = document.getElementById('leads');
+    if (ls) { ls.hidden = !isAdmin; if (isAdmin && typeof loadLeads === 'function') loadLeads(); }
   }
 
   // 사진을 가로 1600px 이하 JPG로 줄여서 올림 (저장 공간 절약)
@@ -699,6 +702,106 @@
     t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   });
 
+
+  // ---------- 견적 요청 (가망 고객) ----------
+  var quoteDlg = document.getElementById('quote-dlg');
+  var quoteForm = document.getElementById('quote-form');
+  var qdMsg = document.getElementById('qd-msg');
+  quoteDlg.addEventListener('click', function (e) {
+    if (e.target === quoteDlg || e.target.closest('[data-close]')) closeDlg(quoteDlg);
+  });
+  document.getElementById('est-request').addEventListener('click', function () {
+    var est = estimateText();
+    document.getElementById('qd-summary').textContent =
+      '작업: ' + (pick.job ? pick.job.label : '선택 안 함') +
+      '\n용량: ' + (pick.cap ? pick.cap.label : '선택 안 함') +
+      '\n대수: ' + (pick.count ? pick.count.label : '선택 안 함') +
+      (est ? '\n예상 금액: ' + est : '');
+    qdMsg.textContent = ''; qdMsg.className = 'form-msg';
+    document.getElementById('qd-submit').disabled = false;
+    openDlg(quoteDlg);
+    document.getElementById('qd-company').focus();
+  });
+  quoteForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var v = function (id) { return document.getElementById(id).value.trim(); };
+    qdMsg.className = 'form-msg err';
+    var phone = v('qd-phone');
+    if (!v('qd-company') || phone.replace(/[^0-9]/g, '').length < 8) { qdMsg.textContent = '건물명(회사명)과 연락처를 정확히 적어 주세요.'; return; }
+    if (!document.getElementById('qd-agree').checked) { qdMsg.textContent = '개인정보 수집·이용에 동의해 주세요.'; return; }
+    if (!db) { qdMsg.textContent = '지금은 접수가 어렵습니다. 전화로 문의해 주세요.'; return; }
+    var btn = document.getElementById('qd-submit');
+    btn.disabled = true;
+    var r = await db.from('leads').insert({
+      company: v('qd-company'), name: v('qd-name') || null, phone: phone,
+      job: pick.job ? pick.job.label : null, capacity: pick.cap ? pick.cap.label : null,
+      unit_count: pick.count ? pick.count.label : null, estimate: estimateText(),
+      memo: v('qd-memo') || null, agreed: true
+    });
+    if (r.error) { btn.disabled = false; qdMsg.textContent = '접수하지 못했습니다. 잠시 후 다시 시도하거나 전화 주세요.'; return; }
+    quoteForm.reset();
+    qdMsg.className = 'form-msg ok';
+    qdMsg.textContent = '견적 요청이 접수되었습니다. 확인 후 빠르게 연락드리겠습니다.';
+    setTimeout(function () { closeDlg(quoteDlg); }, 2500);
+    if (isAdmin) loadLeads();
+  });
+
+  // 관리자 전용: 가망 고객 목록
+  var leadsSection = document.getElementById('leads');
+  var leadList = document.getElementById('lead-list');
+  var leadOpen = document.getElementById('lead-open');
+  var STATUSES = ['신규', '연락함', '견적 발송', '계약', '보류'];
+  async function loadLeads() {
+    if (!isAdmin) return;
+    var q = db.from('leads').select('*').order('created_at', { ascending: false }).limit(100);
+    if (leadOpen.checked) q = q.in('status', ['신규', '연락함', '견적 발송']);
+    var r = await q;
+    leadList.innerHTML = '';
+    var msgEl = document.getElementById('lead-msg');
+    if (r.error) { msgEl.textContent = '불러오지 못했습니다. (leads.sql 실행 여부를 확인해 주세요)'; return; }
+    msgEl.textContent = r.data.length ? '총 ' + r.data.length + '건' : '견적 요청이 없습니다.';
+    r.data.forEach(function (L) { leadList.appendChild(leadCard(L)); });
+  }
+  function leadCard(L) {
+    var art = el('article', 'lead');
+    var top = el('div', 'lead-top');
+    var stCls = L.status === '신규' ? 'wait' : (L.status === '계약' ? 'done' : 'pinned');
+    top.appendChild(el('span', 'status ' + stCls, L.status));
+    top.appendChild(el('span', 'who', fmt(L.created_at)));
+    art.appendChild(top);
+    art.appendChild(el('h3', null, L.company + (L.name ? ' · ' + L.name : '')));
+    var tel = el('a', 'contact-line', L.phone);
+    tel.href = 'tel:' + L.phone.replace(/[^0-9+]/g, '');
+    art.appendChild(tel);
+    var info = [L.job, L.capacity, L.unit_count].filter(Boolean).join(' · ');
+    art.appendChild(el('p', 'lead-info', (info || '작업 미선택') + (L.estimate ? '\n예상: ' + L.estimate : '') + (L.memo ? '\n메모: ' + L.memo : '')));
+    var sel = el('select');
+    sel.setAttribute('aria-label', '진행 상태');
+    STATUSES.forEach(function (s) { var o = el('option', null, s); o.value = s; if (s === L.status) o.selected = true; sel.appendChild(o); });
+    var note = el('textarea');
+    note.rows = 2; note.maxLength = 2000; note.placeholder = '관리 메모 (통화 내용 등)';
+    note.setAttribute('aria-label', '관리 메모');
+    note.value = L.admin_note || '';
+    var btns = el('div', 'row-btns');
+    var save = el('button', 'btn btn-blue', '저장'); save.type = 'button';
+    var del = el('button', 'btn btn-del', '삭제'); del.type = 'button';
+    var m = el('p', 'form-msg');
+    save.addEventListener('click', async function () {
+      var r = await db.from('leads').update({ status: sel.value, admin_note: note.value.trim() || null }).eq('id', L.id);
+      m.className = 'form-msg ' + (r.error ? 'err' : 'ok');
+      m.textContent = r.error ? '저장 실패' : '저장되었습니다.';
+    });
+    del.addEventListener('click', async function () {
+      if (del.dataset.confirm !== '1') { del.dataset.confirm = '1'; del.textContent = '한 번 더 누르면 삭제'; return; }
+      var r = await db.from('leads').delete().eq('id', L.id);
+      if (!r.error) art.remove();
+    });
+    btns.appendChild(save); btns.appendChild(del);
+    art.appendChild(sel); art.appendChild(note); art.appendChild(btns); art.appendChild(m);
+    return art;
+  }
+  leadOpen.addEventListener('change', loadLeads);
+  document.getElementById('lead-reload').addEventListener('click', loadLeads);
   checkAdmin().then(function () { loadPosts(true); loadProjects(); });
   if (db) db.auth.onAuthStateChange(function (ev) {
     if (ev === 'SIGNED_OUT') { isAdmin = false; adminBar.hidden = true; adminToggle.hidden = false; qForm.hidden = true; }
