@@ -16,6 +16,7 @@
   --pale-blue: #EAF2F8;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
@@ -187,6 +188,18 @@ details p { margin-top: 12px; font-size: 16px; color: var(--sub); }
 .form-msg.err { color: #B42318; }
 .more-btn { align-self: center; background: #fff; color: var(--blue); border: 2px solid var(--blue); }
 .hp { position: absolute; left: -9999px; }
+.link-btn { background: none; border: 0; font-family: inherit; font-size: 15px; color: var(--muted); text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0 4px; }
+.admin-login { margin-top: 20px; background: #fff; border-radius: 14px; padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 16px; align-items: end; }
+.admin-login label { font-size: 14px; font-weight: 700; }
+.admin-login input { font-family: inherit; font-size: 16px; padding: 12px 14px; border: 1px solid #C5D3DF; border-radius: 8px; min-height: 44px; width: 100%; }
+.admin-bar { margin-top: 20px; background: var(--navy); color: #fff; border-radius: 14px; padding: 14px 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+.admin-bar .check { color: #fff; }
+.admin-ctrl { border-top: 1px dashed #C5D3DF; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.admin-ctrl textarea { font-family: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid #C5D3DF; border-radius: 8px; width: 100%; resize: vertical; }
+.admin-ctrl .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-ctrl .btn { font-size: 15px; padding: 10px 18px; }
+.btn-del { background: #fff; color: #B42318; border-color: #F1B5AE; }
+.contact-line { font-size: 14px; color: var(--blue); font-weight: 700; }
 
 /* 문의 */
 .contact { background: var(--green); color: #fff; }

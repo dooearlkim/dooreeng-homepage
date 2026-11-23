@@ -218,6 +218,20 @@
         <p class="eyebrow">고객지원</p>
         <h2>궁금한 점을 남겨주시면<br>빠르게 답변드립니다</h2>
       </div>
+      <button type="button" id="admin-toggle" class="link-btn">관리자 로그인</button>
+    </div>
+    <form id="admin-login" class="admin-login" hidden>
+      <label for="a-email">관리자 이메일</label>
+      <input id="a-email" type="email" autocomplete="username" required>
+      <label for="a-pw">비밀번호</label>
+      <input id="a-pw" type="password" autocomplete="current-password" required>
+      <button type="submit" class="btn btn-blue">로그인</button>
+      <p id="a-msg" class="form-msg err" role="status"></p>
+    </form>
+    <div id="admin-bar" class="admin-bar" hidden>
+      <span><strong>관리자 모드</strong> · 글마다 답변 달기와 삭제를 할 수 있어요. 비밀글 내용과 연락처도 보입니다.</span>
+      <label class="check"><input id="a-wait" type="checkbox"> 답변 대기 글만 보기</label>
+      <button type="button" id="admin-logout" class="btn more-btn">로그아웃</button>
     </div>
     <div class="board-grid">
       <div class="posts">

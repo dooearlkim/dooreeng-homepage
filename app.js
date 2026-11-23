@@ -146,23 +146,113 @@
     var d = new Date(ts);
     return d.toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
+  var isAdmin = false;
+
   function renderPost(p) {
     var art = el('article', 'post');
     var top = el('div', 'post-top');
     var done = !!p.answer;
+    var hide = p.is_secret && !isAdmin;
     top.appendChild(el('span', 'status ' + (done ? 'done' : 'wait'), done ? '답변 완료' : '답변 대기'));
-    top.appendChild(el('span', 'who', (p.is_secret ? '비밀글' : (p.author || '익명')) + ' · ' + (p.whenText || fmt(p.created_at))));
+    top.appendChild(el('span', 'who', (hide ? '비밀글' : (p.author || '익명')) + ' · ' + (p.whenText || fmt(p.created_at))));
     art.appendChild(top);
     art.appendChild(el('h3', null, (p.is_secret ? '[비밀글] ' : '') + p.title));
-    art.appendChild(el('p', 'body', p.is_secret ? '작성자와 관리자만 볼 수 있는 글입니다.' : p.body));
-    if (done && !p.is_secret) {
+    art.appendChild(el('p', 'body', hide ? '작성자와 관리자만 볼 수 있는 글입니다.' : p.body));
+    if (done && !hide && !isAdmin) {
       var ans = el('div', 'answer');
       ans.appendChild(el('strong', null, '두레이엔지 답변' + (p.answered_at ? ' · ' + fmt(p.answered_at) : '')));
       ans.appendChild(el('p', null, p.answer));
       art.appendChild(ans);
     }
+    if (isAdmin && p.id) art.appendChild(adminControls(p, art));
     return art;
   }
+
+  // ---------- 관리자 기능 (로그인한 관리자에게만 보임) ----------
+  function adminControls(p, art) {
+    var box = el('div', 'admin-ctrl');
+    if (p.contact) {
+      var c = el('a', 'contact-line', '연락처: ' + p.contact);
+      c.href = 'tel:' + p.contact.replace(/[^0-9+]/g, '');
+      box.appendChild(c);
+    }
+    var id = 'ans-' + p.id;
+    var lab = el('label', null, '답변');
+    lab.htmlFor = id;
+    lab.style.fontWeight = '700';
+    lab.style.fontSize = '14px';
+    var ta = el('textarea');
+    ta.id = id; ta.rows = 3; ta.maxLength = 4000; ta.value = p.answer || '';
+    var btns = el('div', 'row-btns');
+    var save = el('button', 'btn btn-blue', p.answer ? '답변 수정' : '답변 등록');
+    save.type = 'button';
+    var del = el('button', 'btn btn-del', '글 삭제');
+    del.type = 'button';
+    var note = el('p', 'form-msg');
+    save.addEventListener('click', async function () {
+      var text = ta.value.trim();
+      save.disabled = true;
+      var r = await db.from('posts').update({ answer: text || null, answered_at: text ? new Date().toISOString() : null }).eq('id', p.id);
+      save.disabled = false;
+      note.className = 'form-msg ' + (r.error ? 'err' : 'ok');
+      note.textContent = r.error ? '저장 실패. 다시 시도해 주세요.' : '저장되었습니다.';
+      if (!r.error) {
+        save.textContent = text ? '답변 수정' : '답변 등록';
+        var st = art.querySelector('.status');
+        st.className = 'status ' + (text ? 'done' : 'wait');
+        st.textContent = text ? '답변 완료' : '답변 대기';
+      }
+    });
+    del.addEventListener('click', async function () {
+      if (del.dataset.confirm !== '1') { del.dataset.confirm = '1'; del.textContent = '한 번 더 누르면 삭제'; return; }
+      var r = await db.from('posts').delete().eq('id', p.id);
+      if (r.error) { note.className = 'form-msg err'; note.textContent = '삭제 실패. 다시 시도해 주세요.'; return; }
+      art.remove();
+    });
+    btns.appendChild(save); btns.appendChild(del);
+    box.appendChild(lab); box.appendChild(ta); box.appendChild(btns); box.appendChild(note);
+    return box;
+  }
+
+  var adminToggle = document.getElementById('admin-toggle');
+  var adminLogin = document.getElementById('admin-login');
+  var adminBar = document.getElementById('admin-bar');
+  var waitOnly = document.getElementById('a-wait');
+
+  async function checkAdmin() {
+    isAdmin = false;
+    if (db) {
+      var s = await db.auth.getSession();
+      if (s.data && s.data.session) {
+        var r = await db.rpc('is_admin');
+        isAdmin = r.data === true;
+      }
+    }
+    adminBar.hidden = !isAdmin;
+    adminToggle.hidden = !db || isAdmin;
+    if (isAdmin) adminLogin.hidden = true;
+  }
+  adminToggle.addEventListener('click', function () {
+    adminLogin.hidden = !adminLogin.hidden;
+    if (!adminLogin.hidden) document.getElementById('a-email').focus();
+  });
+  adminLogin.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var m = document.getElementById('a-msg');
+    m.textContent = '';
+    var r = await db.auth.signInWithPassword({ email: document.getElementById('a-email').value.trim(), password: document.getElementById('a-pw').value });
+    if (r.error) { m.textContent = '이메일 또는 비밀번호가 맞지 않습니다.'; return; }
+    await checkAdmin();
+    if (!isAdmin) { m.textContent = '관리자로 등록된 계정이 아닙니다.'; adminLogin.hidden = false; await db.auth.signOut(); return; }
+    adminLogin.reset();
+    loadPosts(true);
+  });
+  document.getElementById('admin-logout').addEventListener('click', async function () {
+    await db.auth.signOut();
+    await checkAdmin();
+    loadPosts(true);
+  });
+  waitOnly.addEventListener('change', function () { loadPosts(true); });
 
   async function loadPosts(reset) {
     if (!db) {
@@ -172,23 +262,45 @@
       return;
     }
     if (reset) { list.innerHTML = ''; loaded = 0; }
-    var res = await db.from('public_posts')
+    var q = db.from(isAdmin ? 'posts' : 'public_posts')
       .select('*')
       .order('created_at', { ascending: false })
       .range(loaded, loaded + PAGE - 1);
+    if (isAdmin && waitOnly.checked) q = q.is('answer', null);
+    var res = await q;
     if (res.error) {
       modeNote.textContent = '게시글을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
       return;
     }
     modeNote.textContent = '';
     if (loaded === 0 && res.data.length === 0) {
-      list.appendChild(el('p', 'small-note', '아직 등록된 글이 없습니다. 첫 문의를 남겨주세요.'));
+      list.appendChild(el('p', 'small-note', isAdmin && waitOnly.checked ? '답변을 기다리는 글이 없습니다.' : '아직 등록된 글이 없습니다. 첫 문의를 남겨주세요.'));
     }
     res.data.forEach(function (p) { list.appendChild(renderPost(p)); });
     loaded += res.data.length;
     moreBtn.hidden = res.data.length < PAGE;
   }
   moreBtn.addEventListener('click', function () { loadPosts(false); });
+
+  // 새 글이 올라오면 메일로 알림 (config.js 의 NOTIFY_ACCESS_KEY 가 있을 때만)
+  function notifyByEmail(row) {
+    if (!CFG.NOTIFY_ACCESS_KEY) return;
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: CFG.NOTIFY_ACCESS_KEY,
+        subject: '[두레이엔지 홈페이지] 새 상담글: ' + row.title,
+        from_name: '두레이엔지 홈페이지',
+        '작성자': row.author,
+        '연락처': row.contact || '(없음)',
+        '제목': row.title,
+        '내용': row.body,
+        '비밀글': row.is_secret ? '예' : '아니오',
+        '답변하러 가기': location.href.split('#')[0] + '#board'
+      })
+    }).catch(function () {});
+  }
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -224,6 +336,7 @@
         msg.classList.add('err');
         return;
       }
+      notifyByEmail(row);
       await loadPosts(true);
     } else {
       btn.disabled = false;
@@ -238,5 +351,8 @@
     msg.classList.add('ok');
   });
 
-  loadPosts(true);
+  checkAdmin().then(function () { loadPosts(true); });
+  if (db) db.auth.onAuthStateChange(function (ev) {
+    if (ev === 'SIGNED_OUT') { isAdmin = false; adminBar.hidden = true; adminToggle.hidden = false; }
+  });
 })();
