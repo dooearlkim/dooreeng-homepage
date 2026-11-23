@@ -16,6 +16,38 @@
     return 'sms:' + TEL + (body ? '?body=' + encodeURIComponent(body) : '');
   }
 
+  // ---------- 메인 사진 슬라이드 ----------
+  var slides = document.querySelectorAll('.hero-bg .slide');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (slides.length > 1 && !reduce) {
+    var cur = 0;
+    setInterval(function () {
+      slides[cur].classList.remove('on');
+      cur = (cur + 1) % slides.length;
+      slides[cur].classList.add('on');
+    }, 5500);
+  }
+
+  // ---------- 스크롤하면 부드럽게 나타나기 ----------
+  var targets = document.querySelectorAll(
+    'section:not(.hero) h2, section:not(.hero) .eyebrow, .head-row > p, .card, .photo, .tile, .pills, .steps li, details, .est-form, .result, .board-form, .stats .stat'
+  );
+  targets.forEach(function (t) {
+    var sibs = t.parentElement ? Array.prototype.indexOf.call(t.parentElement.children, t) : 0;
+    t.classList.add('reveal');
+    t.style.setProperty('--d', Math.min(sibs, 6) * 0.08 + 's');
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    targets.forEach(function (t) { io.observe(t); });
+  } else {
+    targets.forEach(function (t) { t.classList.add('in'); });
+  }
+
   // ---------- 전화 / 문자 버튼 ----------
   document.querySelectorAll('.js-tel').forEach(function (a) {
     if (TEL) a.href = 'tel:' + TEL;
